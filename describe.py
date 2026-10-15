@@ -1,53 +1,11 @@
 #!/usr/bin/env python3
 
+import argparse
 import csv
 import math
 import sys
 
-
-def read_dataset(path):
-    """Return the CSV header and all data rows."""
-    with open(path, "r", newline="", encoding="utf-8") as file:
-        reader = csv.reader(file)
-        header = next(reader)
-        rows = []
-        for row in reader:
-            rows.append(row)
-    return header, rows
-
-
-def to_number(value):
-    """Convert a non-empty value to float; return None if it is not numeric."""
-    if value == "":
-        return None
-    try:
-        return float(value)
-    except ValueError:
-        return None
-
-
-def numeric_columns(header, rows):
-    """Collect usable numbers from columns whose values are numeric."""
-    columns = {}
-
-    for column_index, column_name in enumerate(header):
-        values = []
-        has_number = False
-        has_text = False
-
-        for row in rows:
-            value = to_number(row[column_index])
-            if value is None:
-                if row[column_index] != "":
-                    has_text = True
-            else:
-                has_number = True
-                values.append(value)
-
-        if has_number and not has_text:
-            columns[column_name] = values
-
-    return columns
+from data import read_dataset, to_number, numeric_columns
 
 
 def percentile(sorted_values, fraction):
@@ -129,37 +87,55 @@ def basic_statistics(values):
     }
 
 
-def print_basic_statistics(columns):
-    """Print the currently implemented statistics for every numeric column."""
-    for name, values in columns.items():
-        stats = basic_statistics(values)
-        print(name)
-        print(f"  Count: {stats['Count']}")
-        print(f"  Mean:  {stats['Mean']:.6f}")
-        print(f"  Std:   {stats['Std']:.6f}")
-        print(f"  Min:   {stats['Min']:.6f}")
-        print(f"  25%:   {stats['25%']:.6f}")
-        print(f"  50%:   {stats['50%']:.6f}")
-        print(f"  75%:   {stats['75%']:.6f}")
-        print(f"  Max:   {stats['Max']:.6f}")
+def bonus_statistics(values):
+    stats = basic_statistics(values)
+    variance = stats['Std'] ** 2 if stats['Std'] is not None else None
+    return {
+        'Variance': variance,
+        'Range': stats['Max'] - stats['Min'] if values else None,
+        'IQR': stats['75%'] - stats['25%'] if values else None,
+    }
+
+
+def print_basic_statistics(columns, bonus=False):
+    names = list(columns)
+    if not names:
+        raise ValueError('No numerical columns found.')
+    # Print groups to keep a wide dataset readable in a terminal.
+    for start in range(0, len(names), 4):
+        group = names[start:start + 4]
+        results = {}
+        for name in group:
+            results[name] = basic_statistics(columns[name])
+            if bonus:
+                results[name].update(bonus_statistics(columns[name]))
+        widths = []
+        for name in group:
+            cells = ['N/A' if v is None else f'{v:.6f}' for v in results[name].values()]
+            widths.append(max(15, len(name), *(len(cell) for cell in cells)) + 2)
+        print('Statistic'.ljust(12) + ''.join(n.rjust(w) for n, w in zip(group, widths)))
+        for key in results[group[0]]:
+            cells = []
+            for name, width in zip(group, widths):
+                value = results[name][key]
+                cells.append(('N/A' if value is None else f'{value:.6f}').rjust(width))
+            print(key.ljust(12) + ''.join(cells))
+        print()
 
 
 def main():
-    if len(sys.argv) != 2:
-        print(f"Usage: {sys.argv[0]} dataset.csv", file=sys.stderr)
-        return 1
-
+    parser = argparse.ArgumentParser(description='Descriptive statistics calculated by hand.')
+    parser.add_argument('dataset')
+    parser.add_argument('--bonus', action='store_true', help='Add variance, range and IQR.')
+    args = parser.parse_args()
     try:
-        header, rows = read_dataset(sys.argv[1])
-    except (OSError, StopIteration) as error:
-        print(f"Error: cannot read dataset: {error}", file=sys.stderr)
+        header, rows = read_dataset(args.dataset)
+        print_basic_statistics(numeric_columns(header, rows), args.bonus)
+    except (OSError, ValueError, csv.Error) as error:
+        print(f'Error: {error}', file=sys.stderr)
         return 1
-
-    columns = numeric_columns(header, rows)
-    print_basic_statistics(columns)
-
     return 0
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     raise SystemExit(main())
