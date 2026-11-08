@@ -2,10 +2,16 @@
 """Pairwise course scatter plots with score histograms on the diagonal."""
 import csv
 import sys
+from pathlib import Path
+
+# Direct script execution adds this folder, not the project root, to sys.path.
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 import numpy as np
-from data import COURSES, FEATURES, HOUSES
-from describe import basic_statistics
-from plotting import arguments, setup, load, values, pairs, finish, COLORS
+from common.data import COURSES, FEATURES, HOUSES
+from common.statistics import basic_statistics
+from visualization.plotting import arguments, setup, load, values, pairs, finish, COLORS
 
 
 def main():

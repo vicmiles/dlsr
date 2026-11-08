@@ -5,8 +5,8 @@ from pathlib import Path
 
 import numpy as np
 
-from data import FEATURES, HOUSES, to_number
-from describe import basic_statistics
+from common.data import FEATURES, HOUSES, to_number
+from common.statistics import basic_statistics
 
 
 def matrix(rows, features):

@@ -3,7 +3,7 @@ import argparse
 import os
 from pathlib import Path
 
-from data import COURSES, HOUSES, records, to_number
+from common.data import COURSES, HOUSES, records, to_number
 
 COLORS = {'Gryffindor': '#b73535', 'Hufflepuff': '#d29a19',
           'Ravenclaw': '#3776ab', 'Slytherin': '#34845e'}
@@ -19,8 +19,8 @@ def arguments(description, default_output):
 
 def setup(no_show):
     # Keep Matplotlib caches inside the project and support headless execution.
-    os.environ.setdefault('MPLCONFIGDIR', str(Path(__file__).resolve().parent / '.mplconfig'))
-    os.environ.setdefault('XDG_CACHE_HOME', str(Path(__file__).resolve().parent / '.mplconfig'))
+    os.environ.setdefault('MPLCONFIGDIR', str(Path(__file__).resolve().parents[1] / '.mplconfig'))
+    os.environ.setdefault('XDG_CACHE_HOME', str(Path(__file__).resolve().parents[1] / '.mplconfig'))
     import matplotlib
     if no_show:
         matplotlib.use('Agg')

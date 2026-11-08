@@ -10,20 +10,20 @@ Python 3.10 или новее. Выполняйте команды из корн
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-make all
-make bonus
-make test
+python3 logreg_train.py datasets/dataset_train.csv
+python3 logreg_predict.py datasets/dataset_test.csv weights.json
+python3 -m unittest discover -s tests -v
 ```
 
-Если `make` недоступен, используйте команды ниже. Готовые `weights.json`, `houses.csv`, графики в `plots/` и отчёты в `results/` уже созданы. Повторный запуск перезаписывает соответствующие результаты.
+Статистика, графики и бонусные оптимизаторы запускаются отдельно командами ниже. Готовые `weights.json`, `houses.csv`, графики в `plots/` и отчёты в `results/` уже созданы. Повторный запуск перезаписывает соответствующие результаты.
 
 ## Обязательные программы
 
 ### 1. Статистика
 
 ```bash
-python3 describe.py datasets/dataset_train.csv
-python3 describe.py datasets/dataset_train.csv --bonus
+python3 analysis/describe.py datasets/dataset_train.csv
+python3 analysis/describe.py datasets/dataset_train.csv --bonus
 ```
 
 `Count`, `Mean`, `Std`, `Min`, `25%`, `50%`, `75%`, `Max` считаются самостоятельно. Таблица разбивается на группы по четыре столбца, чтобы длинные названия помещались в терминале.
@@ -41,17 +41,17 @@ python3 describe.py datasets/dataset_train.csv --bonus
 ### 2. Визуализация
 
 ```bash
-python3 histogram.py datasets/dataset_train.csv
-python3 scatter_plot.py datasets/dataset_train.csv
-python3 pair_plot.py datasets/dataset_train.csv
+python3 visualization/histogram.py datasets/dataset_train.csv
+python3 visualization/scatter_plot.py datasets/dataset_train.csv
+python3 visualization/pair_plot.py datasets/dataset_train.csv
 ```
 
 Каждый скрипт сохраняет PNG в `plots/` и открывает окно. Для запуска без окна добавьте `--no-show`. Путь сохранения задаётся через `--output`.
 
 ```bash
-python3 histogram.py --course 'Care of Magical Creatures' --no-show --output plots/homogeneous.png
-python3 scatter_plot.py --x Astronomy --y 'Defense Against the Dark Arts' --no-show
-python3 pair_plot.py --selected --no-show --output plots/selected_pairs.png
+python3 visualization/histogram.py --course 'Care of Magical Creatures' --no-show --output plots/homogeneous.png
+python3 visualization/scatter_plot.py --x Astronomy --y 'Defense Against the Dark Arts' --no-show
+python3 visualization/pair_plot.py --selected --no-show --output plots/selected_pairs.png
 ```
 
 **Ответы на вопросы задания для предоставленных данных:**
@@ -158,23 +158,60 @@ NumPy используется для массивов, умножения ма�
 
 ## Карта кода и порядок изучения
 
-| Файл | За что отвечает |
-|---|---|
-| `data.py` | Чтение CSV, проверка структуры, названия факультетов и признаки |
-| `describe.py` | Ручная статистика, квартили, таблица, бонусные показатели |
-| `plotting.py` | Общие настройки графиков, выделение данных по факультетам |
-| `histogram.py` | Сравнение распределений предметов |
-| `scatter_plot.py` | Связь между двумя предметами |
-| `pair_plot.py` | Матрица попарных графиков |
-| `model.py` | Подготовка данных, сигмоида, loss, градиент, обучение, сохранение |
-| `logreg_train.py` | Аргументы командной строки для обучения |
-| `logreg_predict.py` | Загрузка модели и экспорт ответов |
-| `evaluate.py` | Разделение данных, accuracy и матрица ошибок |
-| `tests/test_project.py` | Автоматические проверки |
+```text
+model.py                 # Математика регрессии и подготовка данных
+logreg_train.py          # Обучение и сохранение модели
+logreg_predict.py        # Загрузка модели и предсказание
+evaluate.py              # Проверка качества
+common/
+  data.py                # Чтение CSV и список признаков
+  statistics.py          # Общие ручные математические расчёты
+analysis/
+  describe.py            # Таблица статистики для человека
+visualization/
+  plotting.py            # Общие настройки графиков
+  histogram.py           # Распределения оценок
+  scatter_plot.py        # Связь двух предметов
+  pair_plot.py           # Все пары предметов
+datasets/                # Исходные CSV
+plots/                   # Сохранённые изображения
+results/                 # Отчёты о качестве
+tests/                   # Автоматические проверки
+```
 
-Для совместного разбора: сначала один человек изучает `data.py`, `describe.py` и графики; другой — `model.py`, обучение и предсказание. Затем поменяйтесь и объясните друг другу каждую часть: на защите обоим нужно понимать весь проект.
+Основная регрессия находится в корне, без файлов-посредников. Makefile не нужен:
+все команды запускаются через Python. Команды выше выполняются из корня проекта.
+Можно перейти в папку и передать относительный путь к данным, например:
 
-Полезный порядок чтения модели: `fit_preprocessing` → `transform` → `sigmoid` → `loss_and_gradient` → `train` → `predict`. Попробуйте вручную вычислить один score для ученика и один шаг обновления веса.
+```bash
+cd analysis
+python3 describe.py ../datasets/dataset_train.csv
+```
+
+Для графиков при запуске из их папки указывайте также путь сохранения:
+
+```bash
+cd visualization
+python3 histogram.py ../datasets/dataset_train.csv --output ../plots/histogram.png
+```
+
+Эти примеры с `cd` независимы и начинаются из корня проекта.
+Пути входных и выходных файлов считаются относительно текущей папки терминала.
+Графические скрипты и describe добавляют корень проекта в путь импорта при прямом
+запуске: это позволяет найти общие функции без установки пакета.
+
+Графики и таблица describe нужны человеку для исследования данных и обязательны
+для сдачи. Обучение и предсказание не импортируют `analysis` или `visualization`.
+Математические функции из `common/statistics.py` используются также при подготовке
+обучающих данных для расчёта средних и масштабов. При предсказании используются
+сохранённые средние и масштабы.
+
+Для совместного разбора: один человек изучает `common`, `analysis` и
+`visualization`; другой — регрессию в корне. Затем поменяйтесь и объясните друг
+другу каждую часть: на защите обоим нужно понимать весь проект.
+
+Порядок чтения `model.py`: `fit_preprocessing` → `transform` → `sigmoid` →
+`loss_and_gradient` → `train` → `predict`.
 
 ## Тесты
 

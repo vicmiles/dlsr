@@ -5,7 +5,7 @@ import csv
 import json
 import sys
 from pathlib import Path
-from data import records
+from common.data import records
 from model import stratified_split, train, evaluate
 from logreg_train import add_training_arguments, training_options
 

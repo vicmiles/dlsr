@@ -3,7 +3,7 @@
 import argparse
 import csv
 import sys
-from data import records
+from common.data import records
 from model import train, save_model
 
 

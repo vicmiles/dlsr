@@ -2,8 +2,14 @@
 """Visualize two nearly redundant features (their relation is negative)."""
 import csv
 import sys
-from data import COURSES, HOUSES
-from plotting import arguments, setup, load, pairs, finish, COLORS
+from pathlib import Path
+
+# Direct script execution adds this folder, not the project root, to sys.path.
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from common.data import COURSES, HOUSES
+from visualization.plotting import arguments, setup, load, pairs, finish, COLORS
 
 
 def main():

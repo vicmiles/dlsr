@@ -2,10 +2,16 @@
 """Compare normalized score distributions across all four houses."""
 import csv
 import sys
+from pathlib import Path
+
+# Direct script execution adds this folder, not the project root, to sys.path.
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 import numpy as np
-from data import COURSES, HOUSES
-from describe import basic_statistics
-from plotting import arguments, setup, load, values, finish, COLORS
+from common.data import COURSES, HOUSES
+from common.statistics import basic_statistics
+from visualization.plotting import arguments, setup, load, values, finish, COLORS
 
 
 def main():

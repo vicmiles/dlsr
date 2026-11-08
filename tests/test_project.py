@@ -11,8 +11,9 @@ from contextlib import redirect_stdout
 
 import numpy as np
 
-from data import HOUSES, records, read_dataset, numeric_columns
-from describe import basic_statistics, bonus_statistics, print_basic_statistics
+from common.data import HOUSES, records, read_dataset, numeric_columns
+from common.statistics import basic_statistics, bonus_statistics
+from analysis.describe import print_basic_statistics
 from model import (evaluate, fit_preprocessing, load_model, loss_and_gradient,
                    predict, save_model, sigmoid, stratified_split, train, transform)
 

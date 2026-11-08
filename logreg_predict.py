@@ -4,7 +4,7 @@ import argparse
 import csv
 import sys
 from pathlib import Path
-from data import records
+from common.data import records
 from model import load_model, predict
 
 
