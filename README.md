@@ -148,13 +148,17 @@ p = sigmoid(score) = 1 / (1 + exp(-score))
 
 One-vs-rest means four binary problems: Gryffindor vs the rest, Hufflepuff vs the rest, and so on. During training the correct house gets y=1 and the others y=0. All four models are computed at once with matrix operations, but their loss functions are independent.
 
+The code follows the formulas from the subject's annex directly:
+
 ```text
-loss = sum_over_classes(mean_over_students(log(1 + exp(score)) - y * score))
-gradient = X.T @ (sigmoid(X @ W) - Y) / number_of_students
+g(z)  = 1 / (1 + exp(-z))
+h     = g(X @ W)
+loss  = -1/m * sum(Y * log(h) + (1 - Y) * log(1 - h))
+gradient = X.T @ (h - Y) / m
 W = W - learning_rate * gradient
 ```
 
-`np.logaddexp(0, score)` computes the logarithm stably even for large scores. The sigmoid is written as `exp(-logaddexp(0, -score))` to avoid exponent overflow.
+`X.T @` performs the sum over students from the subject's partial derivative, for every feature and all four models at once. Before the logarithm, `h` is clipped to `[1e-15, 1 - 1e-15]` so a very confident model never hits `log(0)`. In the sigmoid, `exp(-z)` may overflow to infinity for very negative `z`; `1 / (1 + inf)` is exactly 0, the correct limit, so that warning is silenced.
 
 With L2 enabled, `lambda / 2 * sum(W_without_bias ** 2)` is added to the loss and `lambda * W_without_bias` to the gradient. The bias is not penalized.
 

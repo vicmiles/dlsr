@@ -50,14 +50,20 @@ def transform(rows, preprocessing):
 
 
 def sigmoid(z):
-    # This equivalent expression avoids exp(large positive number) overflow.
-    return np.exp(-np.logaddexp(0.0, -z))
+    # g(z) = 1 / (1 + e^-z). For very negative z, e^-z overflows to inf and
+    # 1 / (1 + inf) is exactly 0, which is the correct limit.
+    with np.errstate(over='ignore'):
+        return 1.0 / (1.0 + np.exp(-z))
 
 
 def loss_and_gradient(x, y, weights, regularization=0.0):
-    scores = x @ weights
-    loss = np.sum(np.logaddexp(0.0, scores) - y * scores) / len(x)
-    gradient = x.T @ (sigmoid(scores) - y) / len(x)
+    m = len(x)
+    h = sigmoid(x @ weights)  # h(x) = g(theta^T x)
+    # J = -1/m * sum(y * log(h) + (1 - y) * log(1 - h)); clipping keeps log away from log(0).
+    clipped = np.clip(h, 1e-15, 1 - 1e-15)
+    loss = -np.sum(y * np.log(clipped) + (1 - y) * np.log(1 - clipped)) / m
+    # dJ/dtheta_j = 1/m * sum((h(x_i) - y_i) * x_ij); x.T @ does the sum over students.
+    gradient = x.T @ (h - y) / m
     loss += regularization * np.sum(weights[1:] ** 2) / 2
     gradient[1:] += regularization * weights[1:]
     return float(loss), gradient
