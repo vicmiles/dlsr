@@ -112,9 +112,9 @@ python3 logreg_train.py datasets/dataset_train.csv --optimizer mini-batch --batc
 ## Проверка качества
 
 ```bash
-python3 evaluate.py datasets/dataset_train.csv --output results/validation_batch.json
-python3 evaluate.py datasets/dataset_train.csv --optimizer sgd --epochs 100 --output results/validation_sgd.json
-python3 evaluate.py datasets/dataset_train.csv --optimizer mini-batch --epochs 250 --output results/validation_minibatch.json
+python3 validate.py datasets/dataset_train.csv --output results/validation_batch.json
+python3 validate.py datasets/dataset_train.csv --optimizer sgd --epochs 100 --output results/validation_sgd.json
+python3 validate.py datasets/dataset_train.csv --optimizer mini-batch --epochs 250 --output results/validation_minibatch.json
 ```
 
 Оценка использует стратифицированное разделение 80/20 с seed=42: 1280 учеников для обучения, 320 для проверки. Каждый факультет присутствует в обеих частях. Средние, масштабы и веса считаются только по обучающей части. Набор признаков выбран при исследовании предоставленных данных; это внутренняя проверка, а не независимый скрытый тест.
@@ -162,7 +162,7 @@ NumPy используется для массивов, умножения ма�
 model.py                 # Математика регрессии и подготовка данных
 logreg_train.py          # Обучение и сохранение модели
 logreg_predict.py        # Загрузка модели и предсказание
-evaluate.py              # Проверка качества
+validate.py              # Проверка качества
 common/
   data.py                # Чтение CSV и список признаков
   statistics.py          # Общие ручные математические расчёты
