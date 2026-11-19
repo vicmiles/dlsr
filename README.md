@@ -1,10 +1,10 @@
 # DSLR — Data Science × Logistic Regression
 
-Классификатор факультетов Хогвартса по оценкам учеников. Реализованы обязательные программы и бонусы: дополнительные показатели статистики, stochastic gradient descent и mini-batch gradient descent.
+A Hogwarts house classifier based on students' course scores. The mandatory programs are implemented, plus bonuses: extra statistics fields, stochastic gradient descent and mini-batch gradient descent.
 
-## Установка и быстрый запуск
+## Installation and quick start
 
-Python 3.10 или новее. Выполняйте команды из корня репозитория:
+Python 3.10 or newer. Run the commands from the repository root:
 
 ```bash
 python3 -m venv .venv
@@ -15,30 +15,31 @@ python3 logreg_predict.py datasets/dataset_test.csv weights.json
 python3 -m unittest discover -s tests -v
 ```
 
-Статистика, графики и бонусные оптимизаторы запускаются отдельно командами ниже. Готовые `weights.json`, `houses.csv` и графики в `plots/` уже созданы. Повторный запуск перезаписывает соответствующие результаты.
+Statistics, plots and bonus optimizers are run separately with the commands below. Ready-made `weights.json`, `houses.csv` and plots in `plots/` are already included. Running a command again overwrites the corresponding result.
 
-## Обязательные программы
+## Mandatory programs
 
-### 1. Статистика
+### 1. Statistics
 
 ```bash
 python3 analysis/describe.py datasets/dataset_train.csv
 python3 analysis/describe.py datasets/dataset_train.csv --bonus
 ```
 
-`Count`, `Mean`, `Std`, `Min`, `25%`, `50%`, `75%`, `Max` считаются самостоятельно. Таблица разбивается на группы по четыре столбца, чтобы длинные названия помещались в терминале.
+`Count`, `Mean`, `Std`, `Min`, `25%`, `50%`, `75%`, `Max` are calculated by hand. The table is split into groups of four columns so long names fit in the terminal.
 
-- Пустые значения и нечисловые специальные значения NaN/Inf не входят в статистику.
-- Столбцы с текстом не анализируются как числовые.
-- Полностью пустой столбец выводится с Count=0 и N/A; его тип нельзя определить из одного CSV.
-- Для единственного наблюдения стандартное отклонение — N/A.
-- Std — выборочное стандартное отклонение, знаменатель `n - 1`.
-- Квартили: сортировка, позиция `(n - 1) * q`, линейная интерполяция соседних значений.
-- Бонусы: выборочная дисперсия Variance, размах Range и межквартильный размах IQR.
+- Empty values and non-numeric special values NaN/Inf are left out of the statistics.
+- Columns containing text are not treated as numeric.
+- The `Index` column is a row number, not a feature, so it is not shown.
+- A completely empty column is shown with Count=0 and N/A; its type cannot be determined from a single CSV.
+- For a single observation the standard deviation is N/A.
+- Std is the sample standard deviation, with denominator `n - 1`.
+- Quartiles: sort, position `(n - 1) * q`, linear interpolation between neighbouring values.
+- Bonuses: sample Variance, Range and interquartile range IQR.
 
-Функции библиотек для вычисления этих показателей не используются. `sorted` только упорядочивает значения, `math.sqrt` извлекает корень. `max` в функции печати выбирает ширину ячеек, а не статистический максимум набора данных.
+No library functions are used to compute these values. Values are sorted with our own merge sort, and `math.sqrt` only takes the square root. `max` in the printing function picks the cell width, not the statistical maximum of the data.
 
-### 2. Визуализация
+### 2. Visualization
 
 ```bash
 python3 visualization/histogram.py datasets/dataset_train.csv
@@ -46,7 +47,7 @@ python3 visualization/scatter_plot.py datasets/dataset_train.csv
 python3 visualization/pair_plot.py datasets/dataset_train.csv
 ```
 
-Каждый скрипт сохраняет PNG в `plots/` и открывает окно. Для запуска без окна добавьте `--no-show`. Путь сохранения задаётся через `--output`.
+Each script saves a PNG to `plots/` and opens a window. Add `--no-show` to run without a window. The output path is set with `--output`.
 
 ```bash
 python3 visualization/histogram.py --course 'Care of Magical Creatures' --no-show --output plots/homogeneous.png
@@ -54,37 +55,37 @@ python3 visualization/scatter_plot.py --x Astronomy --y 'Defense Against the Dar
 python3 visualization/pair_plot.py --selected --no-show --output plots/selected_pairs.png
 ```
 
-**Ответы на вопросы задания для предоставленных данных:**
+**Answers to the subject's questions for the provided data:**
 
-1. **Гистограмма:** у `Care of Magical Creatures` распределения оценок всех факультетов сильно перекрываются. `Arithmancy` — ещё один подходящий пример. Используются общие границы столбиков и плотность, а не количество учеников: факультеты имеют разную численность.
-2. **Scatter plot:** `Astronomy` и `Defense Against the Dark Arts` дублируют информацию с противоположным знаком: `Astronomy ≈ -100 × Defense Against the Dark Arts`. Похожесть признаков не означает одинаковый масштаб или положительную связь.
-3. **Pair plot:** цвета показывают, какие предметы разделяют факультеты. Например, Charms хорошо отделяет Ravenclaw и Hufflepuff, Flying помогает выделить Gryffindor, Divination — Slytherin. Для обучения оставлены 10 предметов: Astronomy, Herbology, Divination, Muggle Studies, Ancient Runes, History of Magic, Transfiguration, Potions, Charms, Flying.
+1. **Histogram:** in `Care of Magical Creatures` the score distributions of all houses overlap strongly. `Arithmancy` is another suitable example. The bins are shared and the plot shows density rather than student counts, because the houses have different sizes.
+2. **Scatter plot:** `Astronomy` and `Defense Against the Dark Arts` carry the same information with opposite signs: `Astronomy ≈ -100 × Defense Against the Dark Arts`. Similar features do not have to share a scale or be positively related.
+3. **Pair plot:** colours show which courses separate the houses. For example, Charms separates Ravenclaw from Hufflepuff well, Flying helps single out Gryffindor, and Divination singles out Slytherin. 10 courses are kept for training: Astronomy, Herbology, Divination, Muggle Studies, Ancient Runes, History of Magic, Transfiguration, Potions, Charms, Flying.
 
-Arithmancy и Care of Magical Creatures исключены как слабые разделители, Defense Against the Dark Arts — как дубликат Astronomy. Идентификатор, имя, фамилия, дата рождения и ведущая рука не используются. Hogwarts House — целевая метка, а не входной признак. Такой выбор не заявляется единственным или оптимальным.
+Arithmancy and Care of Magical Creatures are excluded as weak separators, and Defense Against the Dark Arts as a duplicate of Astronomy. Index, first name, last name, birthday and best hand are not used. Hogwarts House is the target label, not an input feature. This choice is not claimed to be the only or the optimal one.
 
-### 3. Обучение
+### 3. Training
 
 ```bash
 python3 logreg_train.py datasets/dataset_train.csv
 ```
 
-Создаёт `weights.json`. По умолчанию: batch gradient descent, 2500 эпох, шаг 0.1, L2-регуляризация 0.0001. Регуляризацию можно отключить через `--regularization 0`.
+Creates `weights.json`. Defaults: batch gradient descent, 2500 epochs, learning rate 0.1, L2 regularization 0.0001. Regularization can be turned off with `--regularization 0`.
 
 ```bash
 python3 logreg_train.py datasets/dataset_train.csv --epochs 3000 --learning-rate 0.1 --output another_model.json
 ```
 
-Для каждого выбранного признака программа рассчитывает среднее и стандартное отклонение только по обучающим наблюдениям. Пропуски заполняются обучающим средним; затем применяется `z = (x - mean) / std`. Константным признакам назначается масштаб 1. Полностью пустой обучающий признак вызывает понятную ошибку.
+For each selected feature the program computes the mean and standard deviation from the training observations only. Missing values are filled with the training mean, then `z = (x - mean) / std` is applied. Constant features get a scale of 1. A training feature with no values at all raises a clear error.
 
-В модель сохраняются названия и порядок признаков, средние, масштабы, веса, порядок факультетов, настройки обучения и история loss. Поэтому отдельный запуск предсказания использует ту же обработку данных и не переобучается на тестовой выборке.
+The model file stores the feature names and order, means, scales, weights, house order, training settings and loss history. This way a separate prediction run applies the same preprocessing and never refits on the test data.
 
-### 4. Предсказание
+### 4. Prediction
 
 ```bash
 python3 logreg_predict.py datasets/dataset_test.csv weights.json
 ```
 
-Создаёт ровно такой формат файла `houses.csv`:
+Creates `houses.csv` in exactly this format:
 
 ```csv
 Index,Hogwarts House
@@ -92,60 +93,60 @@ Index,Hogwarts House
 1,Hufflepuff
 ```
 
-Это пример формата, а не обещание конкретных первых ответов. Исходный порядок строк и значения Index сохраняются. Метки факультетов во входном CSV для предсказания не нужны. Все необходимые столбцы признаков должны присутствовать, но отдельные значения могут быть пустыми.
+This is an example of the format, not a promise of specific first answers. The original row order and Index values are kept. House labels are not needed in the input CSV for prediction. All required feature columns must be present, but individual values may be empty.
 
-## Бонусные оптимизаторы
+## Bonus optimizers
 
 ```bash
 python3 logreg_train.py datasets/dataset_train.csv --optimizer sgd --epochs 100 --output weights_sgd.json
 python3 logreg_train.py datasets/dataset_train.csv --optimizer mini-batch --batch-size 32 --epochs 250 --output weights_minibatch.json
 ```
 
-| Метод | Когда обновляются веса | Особенности |
+| Method | When weights are updated | Notes |
 |---|---|---|
-| batch | После обработки всей обучающей выборки | Стабильный градиент, один шаг за эпоху |
-| sgd | После каждого ученика | Больше колебаний, много дешёвых шагов |
-| mini-batch | После группы, по умолчанию 32 ученика | Компромисс между двумя вариантами |
+| batch | After the whole training set | Stable gradient, one step per epoch |
+| sgd | After every student | More oscillation, many cheap steps |
+| mini-batch | After a group, 32 students by default | A compromise between the two |
 
-Для SGD и mini-batch строки перемешиваются на каждой эпохе с воспроизводимым `--seed` (42 по умолчанию). Шаг уменьшается по формуле `learning_rate / (1 + 0.02 * epoch)`. Эпоха — проход по всей обучающей выборке, поэтому одинаковое число эпох у разных методов означает разное число обновлений.
+For SGD and mini-batch the rows are shuffled every epoch with a reproducible `--seed` (42 by default). The step size decays as `learning_rate / (1 + 0.02 * epoch)`. An epoch is one pass over the whole training set, so the same number of epochs means a different number of updates for different methods.
 
-## Проверка качества
+## Accuracy check
 
-`validate.py` проверяет точность так же, как проверяющий на защите: сравнивает файл с предсказаниями с файлом правильных ответов по `Index` через `accuracy_score` из scikit-learn. Сама модель sklearn не использует, он нужен только для этой проверки.
+`validate.py` checks accuracy the same way the grader does at the defense: it compares a predictions file with a file of true houses by `Index`, using `accuracy_score` from scikit-learn. The model itself does not use sklearn; it is only needed for this check.
 
-На защите, когда есть `dataset_truth.csv`:
+At the defense, when `dataset_truth.csv` is available:
 
 ```bash
 python3 validate.py houses.csv dataset_truth.csv
 ```
 
-Сейчас правильные ответы есть только в `dataset_train.csv`, поэтому локально проверяем на нём:
+Right now the true houses are only in `dataset_train.csv`, so the local check uses it:
 
 ```bash
 python3 logreg_predict.py datasets/dataset_train.csv weights.json --output predictions_train.csv
 python3 validate.py predictions_train.csv datasets/dataset_train.csv
 ```
 
-Фактически полученные результаты на `dataset_train.csv`:
+Actual results on `dataset_train.csv`:
 
-| Оптимизатор | Эпохи | Правильные ответы | Accuracy |
+| Optimizer | Epochs | Correct | Accuracy |
 |---|---:|---:|---:|
 | Batch GD | 2500 | 1571 / 1600 | 98.19% |
 | Mini-batch GD | 250 | 1571 / 1600 | 98.19% |
 | SGD | 100 | 1571 / 1600 | 98.19% |
 
-Это проверка на тех же учениках, на которых модель обучалась. Все три метода ошибаются на одних и тех же 29 учениках: по оценкам они выглядят как ученики другого факультета, поэтому ни одна модель не может угадать их по этим данным. В `dataset_test.csv` факультетов нет, поэтому реальную accuracy на тесте можно узнать только с `dataset_truth.csv`.
+This check uses the same students the model was trained on. All three methods are wrong on the same 29 students: by their scores they look like students of another house, so no model can guess them from this data. `dataset_test.csv` has no houses, so the real test accuracy can only be measured with `dataset_truth.csv`.
 
-## Как устроена математика
+## How the math works
 
-Для одного ученика есть вектор нормализованных оценок `x`. К нему добавляется первый элемент 1 для свободного коэффициента (bias). Для каждого факультета хранится свой вектор весов `w`.
+Each student has a vector of normalized scores `x`. A leading 1 is added to it for the intercept (bias). Each house has its own weight vector `w`.
 
 ```text
 score = x @ w
 p = sigmoid(score) = 1 / (1 + exp(-score))
 ```
 
-One-vs-rest означает четыре бинарные задачи: Gryffindor против остальных, Hufflepuff против остальных и так далее. В обучении правильному факультету соответствует y=1, остальным y=0. Все четыре модели вычисляются одновременно матричными операциями, но их функции потерь независимы.
+One-vs-rest means four binary problems: Gryffindor vs the rest, Hufflepuff vs the rest, and so on. During training the correct house gets y=1 and the others y=0. All four models are computed at once with matrix operations, but their loss functions are independent.
 
 ```text
 loss = sum_over_classes(mean_over_students(log(1 + exp(score)) - y * score))
@@ -153,76 +154,75 @@ gradient = X.T @ (sigmoid(X @ W) - Y) / number_of_students
 W = W - learning_rate * gradient
 ```
 
-`np.logaddexp(0, score)` вычисляет логарифм устойчиво даже при больших score. Сигмоида записана через `exp(-logaddexp(0, -score))`, чтобы не было переполнения экспоненты.
+`np.logaddexp(0, score)` computes the logarithm stably even for large scores. The sigmoid is written as `exp(-logaddexp(0, -score))` to avoid exponent overflow.
 
-При включённой L2 к loss добавляется `lambda / 2 * sum(W_without_bias ** 2)`, а к градиенту — `lambda * W_without_bias`. Bias не штрафуется.
+With L2 enabled, `lambda / 2 * sum(W_without_bias ** 2)` is added to the loss and `lambda * W_without_bias` to the gradient. The bias is not penalized.
 
-Для предсказания выбирается максимальный score из четырёх. Сигмоида монотонна, поэтому это тот же факультет, что и при выборе максимального p. Четыре one-vs-rest вероятности не обязаны в сумме давать 1; это не softmax.
+For prediction the highest of the four scores is chosen. The sigmoid is monotonic, so this is the same house as choosing the highest p. The four one-vs-rest probabilities do not have to sum to 1; this is not softmax.
 
-NumPy используется для массивов, умножения матриц и элементарных операций. Готовых классификаторов, оптимизаторов, `pandas.describe`, библиотечного масштабирования и разделения выборки нет. Matplotlib только рисует графики.
+NumPy is used for arrays, matrix multiplication and element-wise operations. There are no ready-made classifiers, optimizers, `pandas.describe`, or library scaling and data splitting. Matplotlib only draws the plots.
 
-## Карта кода и порядок изучения
+## Code map and reading order
 
 ```text
-model.py                 # Математика регрессии и подготовка данных
-logreg_train.py          # Обучение и сохранение модели
-logreg_predict.py        # Загрузка модели и предсказание
-validate.py              # Проверка качества
+model.py                 # Regression math and data preparation
+logreg_train.py          # Training and saving the model
+logreg_predict.py        # Loading the model and predicting
+validate.py              # Accuracy check
 common/
-  data.py                # Чтение CSV и список признаков
-  statistics.py          # Общие ручные математические расчёты
+  data.py                # CSV reading and the feature list
+  statistics.py          # Shared hand-written math
 analysis/
-  describe.py            # Таблица статистики для человека
+  describe.py            # Statistics table for humans
 visualization/
-  plotting.py            # Общие настройки графиков
-  histogram.py           # Распределения оценок
-  scatter_plot.py        # Связь двух предметов
-  pair_plot.py           # Все пары предметов
-datasets/                # Исходные CSV
-plots/                   # Сохранённые изображения
-tests/                   # Автоматические проверки
+  plotting.py            # Shared plot settings
+  histogram.py           # Score distributions
+  scatter_plot.py        # Relation between two courses
+  pair_plot.py           # All pairs of courses
+datasets/                # Source CSV files
+plots/                   # Saved images
+tests/                   # Automated tests
 ```
 
-Основная регрессия находится в корне, без файлов-посредников. Makefile не нужен:
-все команды запускаются через Python. Команды выше выполняются из корня проекта.
-Можно перейти в папку и передать относительный путь к данным, например:
+The main regression lives in the root, without wrapper files. No Makefile is needed:
+every command runs through Python. The commands above are run from the project root.
+You can also change into a folder and pass a relative path to the data, for example:
 
 ```bash
 cd analysis
 python3 describe.py ../datasets/dataset_train.csv
 ```
 
-Для графиков при запуске из их папки указывайте также путь сохранения:
+When running a plot from its folder, also give the output path:
 
 ```bash
 cd visualization
 python3 histogram.py ../datasets/dataset_train.csv --output ../plots/histogram.png
 ```
 
-Эти примеры с `cd` независимы и начинаются из корня проекта.
-Пути входных и выходных файлов считаются относительно текущей папки терминала.
-Графические скрипты и describe добавляют корень проекта в путь импорта при прямом
-запуске: это позволяет найти общие функции без установки пакета.
+These `cd` examples are independent and start from the project root.
+Input and output paths are relative to the terminal's current folder.
+The plot scripts and describe add the project root to the import path when run
+directly, so they find the shared functions without installing a package.
 
-Графики и таблица describe нужны человеку для исследования данных и обязательны
-для сдачи. Обучение и предсказание не импортируют `analysis` или `visualization`.
-Математические функции из `common/statistics.py` используются также при подготовке
-обучающих данных для расчёта средних и масштабов. При предсказании используются
-сохранённые средние и масштабы.
+The plots and the describe table are for humans exploring the data and are required
+for submission. Training and prediction do not import `analysis` or `visualization`.
+The math functions in `common/statistics.py` are also used when preparing the
+training data to compute means and scales. Prediction uses the saved means and scales.
 
-Для совместного разбора: один человек изучает `common`, `analysis` и
-`visualization`; другой — регрессию в корне. Затем поменяйтесь и объясните друг
-другу каждую часть: на защите обоим нужно понимать весь проект.
+For studying together: one person learns `common`, `analysis` and
+`visualization`; the other learns the regression in the root. Then swap and explain
+each part to each other: at the defense both of you need to understand the whole project.
 
-Порядок чтения `model.py`: `fit_preprocessing` → `transform` → `sigmoid` →
+Reading order for `model.py`: `fit_preprocessing` → `transform` → `sigmoid` →
 `loss_and_gradient` → `train` → `predict`.
 
-## Тесты
+## Tests
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
 
-Проверяются известные значения статистики, пустые и одиночные наблюдения, ошибки CSV, градиент через численные конечные разности, устойчивость сигмоиды, применение обучающей нормализации к новым данным, качество всех оптимизаторов, сохранение/загрузка, повреждённая модель и полный запуск CLI с проверкой всех 400 строк результата.
+The tests cover known statistics values, empty and single observations, CSV errors, the gradient against numerical finite differences, sigmoid stability, applying training normalization to new data, the quality of all optimizers, save/load, a corrupted model, and a full CLI run checking all 400 output rows.
 
-Перед сдачей убедитесь, что новые исходники и нужные результаты добавлены в Git: проверяется содержимое сдаваемого репозитория. Зависимости и инструкции находятся в `requirements.txt` и этом README.
+Before submitting, make sure new source files and the needed results are added to Git: only the contents of the submitted repository are evaluated. Dependencies and instructions are in `requirements.txt` and this README.
