@@ -2,6 +2,30 @@
 import math
 
 
+def merge_sort(values):
+    """Return a new ascending list using merge sort."""
+    values = list(values)
+    if len(values) <= 1:
+        return values
+
+    middle = len(values) // 2
+    left = merge_sort(values[:middle])
+    right = merge_sort(values[middle:])
+
+    merged = []
+    i = j = 0
+    while i < len(left) and j < len(right):
+        if left[i] <= right[j]:
+            merged.append(left[i])
+            i += 1
+        else:
+            merged.append(right[j])
+            j += 1
+    merged.extend(left[i:])
+    merged.extend(right[j:])
+    return merged
+
+
 def percentile(sorted_values, fraction):
     """Return a percentile using linear interpolation between neighbours."""
     count = 0
@@ -67,7 +91,7 @@ def basic_statistics(values):
     else:
         standard_deviation = None
 
-    sorted_values = sorted(values)
+    sorted_values = merge_sort(values)
 
     return {
         "Count": count,
