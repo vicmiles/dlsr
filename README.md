@@ -112,24 +112,24 @@ python3 logreg_train.py datasets/dataset_train.csv --optimizer mini-batch --batc
 ## Проверка качества
 
 ```bash
-python3 validate.py datasets/dataset_train.csv --output results/validation_batch.json
-python3 validate.py datasets/dataset_train.csv --optimizer sgd --epochs 100 --output results/validation_sgd.json
-python3 validate.py datasets/dataset_train.csv --optimizer mini-batch --epochs 250 --output results/validation_minibatch.json
+python3 validate.py datasets/dataset_train.csv weights.json --output results/validation_batch.json
+python3 validate.py datasets/dataset_train.csv weights_sgd.json --output results/validation_sgd.json
+python3 validate.py datasets/dataset_train.csv weights_minibatch.json --output results/validation_minibatch.json
 ```
 
-Оценка использует стратифицированное разделение 80/20 с seed=42: 1280 учеников для обучения, 320 для проверки. Каждый факультет присутствует в обеих частях. Средние, масштабы и веса считаются только по обучающей части. Набор признаков выбран при исследовании предоставленных данных; это внутренняя проверка, а не независимый скрытый тест.
+Скрипт ничего не делит и не обучает: он берёт готовые веса и CSV, где уже есть колонка Hogwarts House, делает предсказания и сравнивает их с настоящими факультетами. В `dataset_test.csv` факультетов нет, поэтому проверка идёт на `dataset_train.csv`, то есть на тех же учениках, на которых модель обучалась.
 
 Фактически полученные результаты:
 
 | Оптимизатор | Эпохи | Правильные ответы | Accuracy |
 |---|---:|---:|---:|
-| Batch GD | 2500 | 316 / 320 | 98.75% |
-| Mini-batch GD | 250 | 316 / 320 | 98.75% |
-| SGD | 100 | 316 / 320 | 98.75% |
+| Batch GD | 2500 | 1571 / 1600 | 98.19% |
+| Mini-batch GD | 250 | 1571 / 1600 | 98.19% |
+| SGD | 100 | 1571 / 1600 | 98.19% |
 
-Сохранённый основной `weights.json` обучен отдельно на всех 1600 учениках. Файл `houses.csv` содержит 400 предсказаний. У `dataset_test.csv` отсутствуют правильные метки, поэтому его реальную accuracy локально проверить нельзя. 98.75% на внутренней выборке не гарантирует 98% на скрытой проверке.
+Все три метода ошибаются на одних и тех же 29 учениках. По оценкам они выглядят как ученики другого факультета, поэтому ни одна модель не может угадать их по этим данным. Реальную accuracy на `dataset_test.csv` локально проверить нельзя: правильные ответы есть только у проверяющего.
 
-Проверочный скрипт выводит также матрицу ошибок: строки — реальные факультеты, столбцы — предсказанные. Accuracy рассчитывается как количество правильных ответов / количество учеников, что соответствует обычному accuracy score.
+Скрипт выводит также матрицу ошибок: строки — реальные факультеты, столбцы — предсказанные. Accuracy рассчитывается как количество правильных ответов / количество учеников, что соответствует обычному accuracy score.
 
 ## Как устроена математика
 

@@ -1,7 +1,7 @@
 {
-  "accuracy": 0.9875,
-  "correct": 316,
-  "total": 320,
+  "accuracy": 0.981875,
+  "correct": 1571,
+  "total": 1600,
   "classes": [
     "Gryffindor",
     "Hufflepuff",
@@ -10,38 +10,28 @@
   ],
   "confusion_matrix": [
     [
-      64,
-      1,
-      0,
+      318,
+      4,
+      5,
       0
     ],
     [
-      0,
-      105,
-      0,
+      2,
+      525,
+      1,
       1
     ],
     [
-      1,
-      0,
-      88,
-      0
+      2,
+      4,
+      435,
+      2
     ],
     [
       0,
-      0,
-      1,
-      59
+      3,
+      5,
+      293
     ]
-  ],
-  "seed": 42,
-  "training_size": 1280,
-  "training": {
-    "optimizer": "mini-batch",
-    "epochs": 250,
-    "learning_rate": 0.1,
-    "batch_size": 32,
-    "regularization": 0.0001,
-    "seed": 42
-  }
+  ]
 }
