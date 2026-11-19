@@ -24,7 +24,7 @@ def main():
         predictions = predict(rows, load_model(args.weights))
         Path(args.output).parent.mkdir(parents=True, exist_ok=True)
         with open(args.output, 'w', newline='', encoding='utf-8') as stream:
-            writer = csv.writer(stream)
+            writer = csv.writer(stream, lineterminator='\n')
             writer.writerow(['Index', 'Hogwarts House'])
             writer.writerows(zip(indices, predictions))
         print(f'Saved {len(predictions)} predictions: {args.output}')
