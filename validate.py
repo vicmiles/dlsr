@@ -1,30 +1,37 @@
 #!/usr/bin/env python3
-"""Check a saved model on a dataset that already has Hogwarts House labels."""
+"""Compare a predictions file with true houses using sklearn's accuracy_score."""
 import argparse
 import csv
-import json
 import sys
-from pathlib import Path
+from sklearn.metrics import accuracy_score
 from common.data import records
-from model import load_model, evaluate
+
+
+def houses_by_index(path):
+    rows = records(path)
+    for name in ('Index', 'Hogwarts House'):
+        if name not in rows[0]:
+            raise ValueError(f'{path}: missing {name} column.')
+    return {row['Index']: row['Hogwarts House'] for row in rows}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('dataset')
-    parser.add_argument('weights')
-    parser.add_argument('--output', help='Optional JSON report.')
+    parser.add_argument('predictions', help='For example houses.csv.')
+    parser.add_argument('truth', help='CSV with Index and the real Hogwarts House.')
     args = parser.parse_args()
     try:
-        report = evaluate(records(args.dataset, True), load_model(args.weights))
-        print(f"Accuracy: {report['accuracy']:.2%} ({report['correct']}/{report['total']})")
-        print('Confusion matrix: rows = actual, columns = predicted')
-        print('Order: ' + ', '.join(report['classes']))
-        for house, row in zip(report['classes'], report['confusion_matrix']):
-            print(f'{house:12s} {row}')
-        if args.output:
-            Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-            Path(args.output).write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
+        predicted, truth = houses_by_index(args.predictions), houses_by_index(args.truth)
+        if set(predicted) != set(truth):
+            raise ValueError('Index values in both files must be the same.')
+        indices = list(truth)
+        if any(not truth[i] for i in indices):
+            raise ValueError(f'{args.truth}: some Hogwarts House values are empty.')
+        y_true = [truth[i] for i in indices]
+        y_pred = [predicted[i] for i in indices]
+        score = accuracy_score(y_true, y_pred)
+        print(f'Accuracy: {score:.4f} ({sum(t == p for t, p in zip(y_true, y_pred))}/{len(indices)})')
+        print('Passed: at least 0.98' if score >= 0.98 else 'Failed: below 0.98')
     except (OSError, ValueError, csv.Error) as error:
         print(f'Error: {error}', file=sys.stderr)
         return 1

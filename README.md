@@ -15,7 +15,7 @@ python3 logreg_predict.py datasets/dataset_test.csv weights.json
 python3 -m unittest discover -s tests -v
 ```
 
-Статистика, графики и бонусные оптимизаторы запускаются отдельно командами ниже. Готовые `weights.json`, `houses.csv`, графики в `plots/` и отчёты в `results/` уже созданы. Повторный запуск перезаписывает соответствующие результаты.
+Статистика, графики и бонусные оптимизаторы запускаются отдельно командами ниже. Готовые `weights.json`, `houses.csv` и графики в `plots/` уже созданы. Повторный запуск перезаписывает соответствующие результаты.
 
 ## Обязательные программы
 
@@ -111,15 +111,22 @@ python3 logreg_train.py datasets/dataset_train.csv --optimizer mini-batch --batc
 
 ## Проверка качества
 
+`validate.py` проверяет точность так же, как проверяющий на защите: сравнивает файл с предсказаниями с файлом правильных ответов по `Index` через `accuracy_score` из scikit-learn. Сама модель sklearn не использует, он нужен только для этой проверки.
+
+На защите, когда есть `dataset_truth.csv`:
+
 ```bash
-python3 validate.py datasets/dataset_train.csv weights.json --output results/validation_batch.json
-python3 validate.py datasets/dataset_train.csv weights_sgd.json --output results/validation_sgd.json
-python3 validate.py datasets/dataset_train.csv weights_minibatch.json --output results/validation_minibatch.json
+python3 validate.py houses.csv dataset_truth.csv
 ```
 
-Скрипт ничего не делит и не обучает: он берёт готовые веса и CSV, где уже есть колонка Hogwarts House, делает предсказания и сравнивает их с настоящими факультетами. В `dataset_test.csv` факультетов нет, поэтому проверка идёт на `dataset_train.csv`, то есть на тех же учениках, на которых модель обучалась.
+Сейчас правильные ответы есть только в `dataset_train.csv`, поэтому локально проверяем на нём:
 
-Фактически полученные результаты:
+```bash
+python3 logreg_predict.py datasets/dataset_train.csv weights.json --output predictions_train.csv
+python3 validate.py predictions_train.csv datasets/dataset_train.csv
+```
+
+Фактически полученные результаты на `dataset_train.csv`:
 
 | Оптимизатор | Эпохи | Правильные ответы | Accuracy |
 |---|---:|---:|---:|
@@ -127,9 +134,7 @@ python3 validate.py datasets/dataset_train.csv weights_minibatch.json --output r
 | Mini-batch GD | 250 | 1571 / 1600 | 98.19% |
 | SGD | 100 | 1571 / 1600 | 98.19% |
 
-Все три метода ошибаются на одних и тех же 29 учениках. По оценкам они выглядят как ученики другого факультета, поэтому ни одна модель не может угадать их по этим данным. Реальную accuracy на `dataset_test.csv` локально проверить нельзя: правильные ответы есть только у проверяющего.
-
-Скрипт выводит также матрицу ошибок: строки — реальные факультеты, столбцы — предсказанные. Accuracy рассчитывается как количество правильных ответов / количество учеников, что соответствует обычному accuracy score.
+Это проверка на тех же учениках, на которых модель обучалась. Все три метода ошибаются на одних и тех же 29 учениках: по оценкам они выглядят как ученики другого факультета, поэтому ни одна модель не может угадать их по этим данным. В `dataset_test.csv` факультетов нет, поэтому реальную accuracy на тесте можно узнать только с `dataset_truth.csv`.
 
 ## Как устроена математика
 
@@ -175,7 +180,6 @@ visualization/
   pair_plot.py           # Все пары предметов
 datasets/                # Исходные CSV
 plots/                   # Сохранённые изображения
-results/                 # Отчёты о качестве
 tests/                   # Автоматические проверки
 ```
 
