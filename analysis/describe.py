@@ -47,7 +47,10 @@ def main():
     args = parser.parse_args()
     try:
         header, rows = read_dataset(args.dataset)
-        print_basic_statistics(numeric_columns(header, rows), args.bonus)
+        columns = numeric_columns(header, rows)
+        # Index is a row identifier, not a feature.
+        columns.pop('Index', None)
+        print_basic_statistics(columns, args.bonus)
     except (OSError, ValueError, csv.Error) as error:
         print(f'Error: {error}', file=sys.stderr)
         return 1
